@@ -3,24 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blyee's Shop | OPay Checkout</title>
+    <title>Blyee's Shop | Premium Vaults</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
     <style>
         :root { 
-            --accent-gold: #ffc400; 
+            /* Technician Tune: Gold is our new king. Blue is our new edge. */
             --neon-gold: #fff0a3; 
+            --accent-gold: #ffc400; 
+            --deep-gold-glow: rgba(255, 196, 0, 0.4);
             --sky-blue: #4db8ff;   
             --bg-dark: #0a0a0a; 
-            --glass: rgba(15, 15, 15, 0.9); 
+            --glass: rgba(15, 15, 15, 0.85); 
+            --text-main: #ffffff; 
         }
         
-        body { margin: 0; background-color: var(--bg-dark); font-family: 'Roboto', sans-serif; color: white; overflow-x: hidden; }
+        body { margin: 0; background-color: var(--bg-dark); font-family: 'Roboto', sans-serif; color: var(--text-main); overflow-x: hidden; }
 
+        /* Themed Background Overlay */
         .page-wrapper {
-            background-image: url('https://i.postimg.cc/8PGQc6gS/IMG-0985.png'); 
+            background-image: url('https://i.postimg.cc/8PGQc6gS/IMG-0985.png'); /* A dark, themed gaming texture */
             background-size: cover; background-position: center top; background-attachment: fixed;
             min-height: 100vh; width: 100%; position: relative;
         }
@@ -28,24 +31,53 @@
         .page-overlay { background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); position: absolute; inset: 0; z-index: 1; }
         .content-layer { position: relative; z-index: 2; }
 
-        header { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); padding: 20px 0; border-bottom: 1px solid #222; text-align: center; }
-        .logo-text { color: var(--neon-gold); font-size: 28px; font-weight: bold; text-transform: uppercase; }
+        /* HEADER & LOGO (Inspired by the input image) */
+        header { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); padding: 25px 0 0 0; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; text-align: center; }
         
-        .auth-wrap { position: absolute; right: 15px; top: 15px; }
-        .user-circle { width: 40px; height: 40px; border-radius: 50%; background: #222; border: 1.5px solid var(--accent-gold); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
-        .user-circle img { width: 100%; height: 100%; border-radius: 50%; }
+        /* The Pulsing Neon Logo Group */
+        .logo-group { 
+            display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px var(--accent-gold)); 
+            animation: goldPulse 3s infinite ease-in-out;
+        }
+        @keyframes goldPulse {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 196, 0, 0.5)); }
+            50% { filter: drop-shadow(0 0 18px rgba(255, 196, 0, 0.8)); }
+        }
 
-        .tabs { display: flex; justify-content: center; gap: 30px; margin-top: 15px; }
-        .tab-item { padding: 10px; color: #888; cursor: pointer; font-weight: bold; }
-        .tab-item.active { color: var(--accent-gold); border-bottom: 2px solid var(--accent-gold); }
+        .logo-group svg { fill: var(--neon-gold); width: 42px; height: 42px; }
+        .logo-text { color: var(--neon-gold); font-size: 32px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-style: italic; }
 
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .account-card { background: var(--glass); border-radius: 20px; border: 1px solid #333; overflow: hidden; cursor: pointer; }
-        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
-        .card-body { padding: 12px; }
-        .price-tag { color: var(--sky-blue); font-size: 18px; font-weight: bold; }
+        /* Tabs (Sleeker design) */
+        .tabs { display: flex; justify-content: center; gap: 40px; }
+        .tab-item { padding: 15px 5px; color: #777; cursor: pointer; font-weight: bold; position: relative; }
+        .tab-item.active { color: var(--accent-gold); }
+        .tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent-gold); box-shadow: 0 0 10px var(--deep-gold-glow); border-radius: 3px; }
 
-        .buy-btn { width: 100%; background: var(--accent-gold); color: black; border: none; padding: 10px; border-radius: 10px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        /* PRODUCT GRID (Cards with more depth) */
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 20px; }
+        .account-card { background: var(--glass); border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.03); overflow: hidden; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; filter: brightness(0.9); }
+        .card-body { padding: 16px; text-align: center; position: relative; }
+        
+        /* Specialized Pricing and Status Tags */
+        .price-display { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); background: #111; border: 1px solid var(--accent-gold); padding: 5px 15px; border-radius: 20px; color: var(--sky-blue); font-weight: bold; font-size: 16px; box-shadow: 0 0 10px var(--deep-gold-glow); }
+        .status-tag { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: var(--accent-gold); font-size: 10px; padding: 4px 8px; border-radius: 10px; border: 1px solid rgba(255,196,0,0.3); }
+
+        /* Interactive Buttons */
+        .view-vault-btn { width: 100%; background: transparent; color: #888; border: 1px solid #333; padding: 10px; border-radius: 12px; margin-bottom: 10px; margin-top: 25px; cursor: pointer; font-size: 13px; transition: 0.3s; }
+        .view-vault-btn:hover { border-color: var(--sky-blue); color: var(--sky-blue); }
+        
+        .buy-btn { width: 100%; background: linear-gradient(135deg, var(--accent-gold) 0%, #ff8c00 100%); color: black; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 15px; transition: 0.2s; }
+        .buy-btn:active { transform: scale(0.98); filter: brightness(0.9); }
+
+        /* THEMED MODAL SYSTEM */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); z-index: 200; overflow-y: auto; padding: 20px; }
+        .modal-content { max-width: 500px; margin: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #333; padding-bottom: 15px; }
+        .close-modal { font-size: 36px; color: #555; cursor: pointer; transition: 0.3s; }
+        .close-modal:hover { color: white; }
+        .vault-gallery img { width: 100%; border-radius: 16px; margin-bottom: 18px; border: 1px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.4); }
 
         .section-hide { display: none !important; }
     </style>
@@ -55,77 +87,95 @@
     <div class="page-wrapper">
         <div class="page-overlay"></div>
         <div class="content-layer">
+
             <header>
-                <div class="auth-wrap">
-                    <button class="user-circle" id="login-btn" data-netlify-identity-button>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffc400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08s5.97 1.09 6 3.08c-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-                    </button>
+                <div class="logo-group">
+                    <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <div class="logo-text">Blyee's Shop</div>
                 </div>
-                <div class="logo-text">Blyee's Shop</div>
+
                 <div class="tabs">
-                    <div id="tab-accounts" class="tab-item active" onclick="switchTab('accounts')">Accounts</div>
+                    <div id="tab-accounts" class="tab-item active" onclick="switchTab('accounts')">Premium Vaults</div>
                     <div id="tab-topup" class="tab-item" onclick="switchTab('topup')">Top-up Center</div>
                 </div>
             </header>
 
             <main id="accounts-section" class="product-grid">
                 <div class="account-card">
+                    <span class="status-tag">★ EXCLUSIVE</span>
                     <img src="https://i.postimg.cc/8PGQc6gS/IMG-0985.png" class="card-img">
+                    
                     <div class="card-body">
-                        <div style="font-size: 14px;">Level 72 Master Sakura</div>
-                        <div class="price-tag">₦45,000</div>
-                        <button class="buy-btn" onclick="payWithOPay('45000', 'FF Level 72 Sakura')">BUY NOW</button>
+                        <div class="price-display">₦45,000</div>
+                        <div style="font-size: 13px; color: #ccc; margin-top: 15px;">Level 72 Master Sakura & Hip Hop</div>
+                        
+                        <button class="view-vault-btn" onclick="openVault('sakura')">VIEW FULL VAULT</button>
+                        <button class="buy-btn" onclick="payWithOPay('45000', 'SakuraAccount')">BUY NOW</button>
+                    </div>
+                </div>
+                <div class="account-card">
+                    <span class="status-tag">⚔️ GODLIKE</span>
+                    <img src="https://i.postimg.cc/8PGQc6gS/IMG-0985.png" class="card-img">
+                    
+                    <div class="card-body">
+                        <div class="price-display">₦62,000</div>
+                        <div style="font-size: 13px; color: #ccc; margin-top: 15px;">Max rank CODM | Legendary Skins</div>
+                        
+                        <button class="view-vault-btn" onclick="openVault('sakura')">VIEW VAULT</button>
+                        <button class="buy-btn" onclick="payWithOPay('62000', 'CODM_Max')">BUY NOW</button>
                     </div>
                 </div>
             </main>
 
             <main id="topup-section" class="product-grid section-hide">
-                <div class="account-card">
+                <div class="account-card" style="grid-column: 1 / span 2; text-align: center;">
                     <div class="card-body">
-                        <div style="font-size: 14px;">100 Garena Diamonds</div>
-                        <div class="price-tag">₦1,200</div>
-                        <button class="buy-btn" onclick="payWithOPay('1200', '100 Diamonds')">BUY NOW</button>
+                        <div style="font-size: 16px; color: #fff;">100 Garena Diamonds</div>
+                        <div style="color: var(--accent-gold); font-size: 32px; font-weight: bold; margin: 15px 0;">₦1,200</div>
+                        <button class="buy-btn" onclick="payWithOPay('1200', '100Diamonds')">BUY INSTANT</button>
                     </div>
                 </div>
             </main>
         </div>
     </div>
 
+    <div id="vault-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="vault-title" style="color: var(--neon-gold); font-style: italic;">Vault Preview</h2>
+                <span class="close-modal" onclick="closeVault()">&times;</span>
+            </div>
+            <div id="vault-images" class="vault-gallery">
+                </div>
+            <button class="buy-btn" id="modal-buy-btn" style="margin-top: 20px;">PROCEED TO PAYMENT</button>
+        </div>
+    </div>
+
     <script>
-        // TAB SWITCHER
+        // Placeholder Vault Data
+        const accountData = {
+            'sakura': { title: "Sakura & Hip Hop Bundles", price: "45000", images: ["https://i.postimg.cc/8PGQc6gS/IMG-0985.png", "https://i.postimg.cc/8PGQc6gS/IMG-0985.png", "https://i.postimg.cc/8PGQc6gS/IMG-0985.png"] }
+        };
+
+        function openVault(accKey) {
+            const data = accountData[accKey];
+            const container = document.getElementById('vault-images');
+            container.innerHTML = ''; 
+            document.getElementById('vault-title').innerText = data.title;
+            data.images.forEach(src => { const img = document.createElement('img'); img.src = src; container.appendChild(img); });
+            document.getElementById('modal-buy-btn').onclick = () => payWithOPay(data.price, data.title);
+            document.getElementById('vault-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeVault() { document.getElementById('vault-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
         function switchTab(target) {
-            const accTab = document.getElementById('tab-accounts');
-            const topTab = document.getElementById('tab-topup');
-            const accSec = document.getElementById('accounts-section');
-            const topSec = document.getElementById('topup-section');
-
-            if (target === 'accounts') {
-                accTab.classList.add('active'); topTab.classList.remove('active');
-                accSec.classList.remove('section-hide'); topSec.classList.add('section-hide');
-            } else {
-                topTab.classList.add('active'); accTab.classList.remove('active');
-                topSec.classList.remove('section-hide'); accSec.classList.add('section-hide');
-            }
+            document.getElementById('accounts-section').classList.toggle('section-hide', target !== 'accounts');
+            document.getElementById('topup-section').classList.toggle('section-hide', target !== 'topup');
+            document.getElementById('tab-accounts').classList.toggle('active', target === 'accounts');
+            document.getElementById('tab-topup').classList.toggle('active', target === 'active');
         }
-
-        // OPAY CONNECTION
-        function payWithOPay(amount, itemName) {
-            // Replace 'YOUR_OPAY_MERCHANT_ID' with your actual Merchant ID or Checkout URL
-            const opayLink = `https://web-payment.opaycheckout.com/pay-now?merchantId=YOUR_ID&amount=${amount}&ref=${itemName}`;
-            
-            // Redirects user to the OPay payment screen
-            window.location.href = opayLink;
-        }
-
-        // IDENTITY SYNC
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("login", user => {
-                if (user.user_metadata.avatar_url) {
-                    document.getElementById('login-btn').innerHTML = `<img src="${user.user_metadata.avatar_url}">`;
-                }
-                window.netlifyIdentity.close();
-            });
-        }
+        function payWithOPay(amount, name) { /* Your OPay Checkout Link here */ window.location.href = `https://web-payment.opaycheckout.com/pay-now?merchantId=YOUR_ID&amount=${amount}&ref=${name}`; }
     </script>
 </body>
 </html>
