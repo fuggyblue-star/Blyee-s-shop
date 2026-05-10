@@ -180,10 +180,7 @@
 
         // FUNCTIONAL: Auth Trigger
         document.getElementById('login-btn').addEventListener('click', () => {
-            auth.signInWithPopup(provider).then((result) => {
-                document.getElementById('login-btn').innerHTML = `<img src="${result.user.photoURL}">`;
-            }).catch(err => alert("Add 'jsbin.com' to Authorized Domains in Firebase!"));
-        });
-    </script>
-</body>
-</html>
+document.getElementById('login-btn').addEventListener('click', () => {
+  netlifyIdentity.open();
+});
+
