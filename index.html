@@ -3,121 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BLYEE SHOP | Premium Gaming</title>
+    <title>Blyee's Shop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+
     <style>
-        body {
-            background-color: #050505;
-            color: white;
-            font-family: 'Arial Black', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        :root { 
+            --accent-gold: #ffc400; 
+            --neon-gold: #fff0a3; 
+            --sky-blue: #4db8ff;   
+            --bg-dark: #0a0a0a; 
+            --glass: rgba(15, 15, 15, 0.85); 
+            --text-main: #ffffff; 
+        }
+        
+        body { margin: 0; padding: 0; background-color: var(--bg-dark); font-family: 'Roboto', sans-serif; color: var(--text-main); }
+
+        .page-wrapper {
+            background-image: url('https://i.postimg.cc/8PGQc6gS/IMG-0985.png'); 
+            background-size: cover; background-position: center top; background-attachment: fixed;
+            min-height: 100vh; width: 100%; position: relative;
+            filter: contrast(1.1) saturate(1.2); 
         }
 
-        /* Header & Neon Logo */
-        header {
-            width: 100%;
-            padding: 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
+        .page-overlay { 
+            background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.8) 100%); 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; 
+        }
+        
+        .content-layer { position: relative; z-index: 2; }
+
+        header { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); padding: 25px 0 0 0; border-bottom: 1px solid #222; }
+        .top-bar { display: flex; flex-direction: column; align-items: center; padding: 0 20px; }
+        
+        @keyframes goldPulse {
+            0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 196, 0, 0.5)); }
+            50% { filter: drop-shadow(0 0 18px rgba(255, 196, 0, 0.8)); }
         }
 
-        .logo {
-            font-size: 28px;
-            color: #87CEEB; /* Sky Blue */
-            text-shadow: 0 0 10px #00d4ff, 0 0 20px #00d4ff;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+        .logo-group { 
+            display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+            animation: goldPulse 3s infinite ease-in-out;
         }
+        
+        .logo-group svg { fill: var(--neon-gold); width: 40px; height: 40px; }
+        .logo-text { color: var(--neon-gold); font-size: 30px; font-weight: bold; font-style: italic; text-transform: uppercase; letter-spacing: 1.5px; }
 
-        /* The Profile Icon Button */
-        .profile-trigger {
-            background: none;
-            border: 2px solid #00d4ff;
-            color: #00d4ff;
-            padding: 8px 12px;
-            border-radius: 50px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            font-family: sans-serif;
-            box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
-        }
+        .search-area { width: 90%; max-width: 420px; margin-bottom: 20px; }
+        .search-input { background: #1a1a1a; border-radius: 30px; padding: 14px 25px; border: 1px solid #333; color: white; width: 100%; outline: none; font-size: 15px; }
 
-        /* Server Status Bar */
-        .status-bar {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border-top: 1px solid #333;
-            border-bottom: 1px solid #333;
-            padding: 10px 0;
-            text-align: center;
-            font-size: 14px;
-            letter-spacing: 1px;
-            color: #ccc;
-        }
+        .tabs { display: flex; justify-content: center; gap: 45px; }
+        .tab-item { padding: 15px 5px; font-size: 16px; color: #777; cursor: pointer; position: relative; }
+        .tab-item.active { color: var(--accent-gold); font-weight: bold; }
+        .tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent-gold); border-radius: 3px 3px 0 0; }
 
-        /* Main Content */
-        .hero {
-            margin-top: 60px;
-            text-align: center;
-            padding: 0 20px;
-        }
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; padding: 20px; }
+        .account-card { background: var(--glass); border-radius: 24px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05); transition: 0.3s; }
+        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; display: block; }
+        .card-body { padding: 16px; }
+        .tag { font-size: 10px; color: var(--accent-gold); font-weight: bold; margin-bottom: 6px; display: block; }
+        .title { font-size: 13px; color: #ddd; line-height: 1.4; height: 36px; overflow: hidden; margin-bottom: 12px; }
+        .price-tag { color: var(--sky-blue); font-size: 21px; font-weight: bold; }
 
-        h1 {
-            font-size: 42px;
-            margin-bottom: 10px;
-            line-height: 1.1;
-        }
+        .section-hide { display: none; }
 
-        p {
-            color: #aaa;
-            font-family: sans-serif;
-            font-size: 16px;
-            max-width: 300px;
-            margin: 0 auto;
+        /* AUTH BUTTON (Styled to trigger Identity) */
+        .auth-wrap { position: absolute; right: 20px; top: 20px; }
+        .user-circle { 
+            width: 36px; height: 36px; border-radius: 50%; background: #222; 
+            border: 1.5px solid var(--accent-gold); cursor: pointer; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center; padding: 0;
         }
+        .user-circle img { width: 100%; height: 100%; border-radius: 50%; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">BLYEE SHOP</div>
-        
-        <button class="profile-trigger" data-netlify-identity-button>
-            <i class="fas fa-user-circle" style="font-size: 24px;"></i>
-            <span style="font-size: 14px; font-weight: bold;">Log in</span>
-        </button>
-    </header>
+    <div class="page-wrapper">
+        <div class="page-overlay"></div>
+        <div class="content-layer">
+            <header>
+                <div class="auth-wrap">
+                    <button class="user-circle" id="login-btn" data-netlify-identity-button>
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="#666"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08s5.97 1.09 6 3.08c-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                    </button>
+                </div>
 
-    <div class="status-bar">
-        SERVER STATUS: <span style="color: #00ff00;">ONLINE</span>
-    </div>
+                <div class="top-bar">
+                    <div class="logo-group">
+                        <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                        <div class="logo-text">Blyee's Shop</div>
+                    </div>
 
-    <div class="hero">
-        <h1>Premium Gaming Accounts</h1>
-        <p>Login to view available Free Fire & COD Mobile stock.</p>
+                    <div class="search-area">
+                        <input type="text" id="search-input" class="search-input" placeholder="Search Blyee's inventory..." onkeyup="filterProducts()">
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div id="tab-accounts" class="tab-item active" onclick="switchTab('accounts')">Accounts</div>
+                    <div id="tab-topup" class="tab-item" onclick="switchTab('topup')">Top-up Center</div>
+                </div>
+            </header>
+
+            <main id="accounts-section" class="product-grid">
+                <div class="account-card" data-name="Level 72 Master Sakura Hip Hop">
+                    <img src="https://i.postimg.cc/8PGQc6gS/IMG-0985.png" class="card-img">
+                    <div class="card-body">
+                        <span class="tag">★ CHOICE</span>
+                        <div class="title">Level 72 Master - Sakura & Hip Hop Bundles</div>
+                        <div class="price-tag">₦45,000</div>
+                    </div>
+                </div>
+            </main>
+
+            <main id="topup-section" class="product-grid section-hide">
+                <div class="account-card" data-name="100 Diamonds Garena">
+                    <div class="card-body">
+                        <span class="tag">⚡ INSTANT</span>
+                        <div class="title">100 Garena Diamonds (Instant ID)</div>
+                        <div class="price-tag">₦1,200</div>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <script>
-        // Redirect after login
+        // Tab Switching
+        function switchTab(target) {
+            const accTab = document.getElementById('tab-accounts');
+            const topTab = document.getElementById('tab-topup');
+            const accSec = document.getElementById('accounts-section');
+            const topSec = document.getElementById('topup-section');
+
+            if (target === 'accounts') {
+                accTab.classList.add('active'); topTab.classList.remove('active');
+                accSec.classList.remove('section-hide'); topSec.classList.add('section-hide');
+            } else {
+                topTab.classList.add('active'); accTab.classList.remove('active');
+                topSec.classList.remove('section-hide'); accSec.classList.add('section-hide');
+            }
+        }
+
+        // Search Filter
+        function filterProducts() {
+            let input = document.getElementById('search-input').value.toLowerCase();
+            let cards = document.querySelectorAll('.account-card');
+            cards.forEach(card => {
+                let name = card.getAttribute('data-name').toLowerCase();
+                card.style.display = name.includes(input) ? "block" : "none";
+            });
+        }
+
+        // Logic for user avatar update after login
         if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    window.netlifyIdentity.on("login", () => {
-                        document.location.href = "/";
-                    });
+            window.netlifyIdentity.on("login", user => {
+                if (user.user_metadata && user.user_metadata.avatar_url) {
+                    document.getElementById('login-btn').innerHTML = `<img src="${user.user_metadata.avatar_url}">`;
                 }
+                // Refresh to close the widget and show changes
+                window.netlifyIdentity.close();
             });
         }
     </script>
