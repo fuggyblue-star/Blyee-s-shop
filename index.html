@@ -36,15 +36,17 @@
         .card-body { padding: 12px; text-align: center; }
         .price-display { background: #111; border: 1px solid var(--accent-gold); padding: 4px 10px; border-radius: 20px; color: var(--sky-blue); font-weight: bold; margin-bottom: 10px; display: inline-block; font-size: 14px; }
         
-        .btn { width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; border: none; font-size: 13px; }
+        .btn { width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; border: none; font-size: 13px; transition: 0.3s; }
         .btn-vault { background: transparent; color: #888; border: 1px solid #333; }
         .btn-buy { background: linear-gradient(135deg, var(--accent-gold) 0%, #ff8c00 100%); color: black; }
+        .btn-buy:hover { transform: scale(1.02); filter: brightness(1.1); }
 
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; overflow-y: auto; padding: 20px; }
         .modal-content { max-width: 500px; margin: auto; }
         .vault-gallery img { width: 100%; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
         
         .section-hide { display: none !important; }
+        .delivery-note { font-size: 11px; color: #aaa; margin-top: 10px; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -63,7 +65,7 @@
                 </div>
                 <div class="tabs">
                     <div id="tab-accounts" class="tab-item active" onclick="switchTab('accounts')">Accounts</div>
-                    <div id="tab-topup" class="tab-item" onclick="switchTab('topup')">Top-up</div>
+                    <div id="tab-topup" class="tab-item" onclick="switchTab('topup')">Diamonds</div>
                 </div>
             </header>
             <main id="accounts-section" class="product-grid"></main>
@@ -80,38 +82,60 @@
     </div>
 
     <script>
-        // 1. INVENTORY LIST
+        // 💎 1. INVENTORY: This is where you add your diamonds and accounts
         const myInventory = [
             {
                 type: 'account',
                 name: "Level 72 Master Sakura",
                 price: "45000",
                 mainImage: "https://i.postimg.cc/8PGQc6gS/IMG-0985.png",
-                vaultImages: ["https://i.postimg.cc/8PGQc6gS/IMG-0985.png", "https://i.postimg.cc/8PGQc6gS/IMG-0985.png"]
+                vaultImages: ["https://i.postimg.cc/8PGQc6gS/IMG-0985.png"]
             },
             {
                 type: 'topup',
                 name: "100 Diamonds",
                 price: "1200",
-                mainImage: "https://i.postimg.cc/8PGQc6gS/IMG-0985.png", 
+                mainImage: "https://i.postimg.cc/gjGCHX6V/diamonds-pack.png", // Replace with a diamond icon
+                vaultImages: []
+            },
+            {
+                type: 'topup',
+                name: "310 Diamonds",
+                price: "3500",
+                mainImage: "https://i.postimg.cc/gjGCHX6V/diamonds-pack.png", 
+                vaultImages: []
+            },
+            {
+                type: 'topup',
+                name: "520 Diamonds",
+                price: "5800",
+                mainImage: "https://i.postimg.cc/gjGCHX6V/diamonds-pack.png", 
                 vaultImages: []
             }
         ];
 
+        // 2. BUILDER: Don't change this part
         function renderShop() {
             const accGrid = document.getElementById('accounts-section');
             const topupGrid = document.getElementById('topup-section');
             accGrid.innerHTML = '';
             topupGrid.innerHTML = '';
+
             myInventory.forEach((item, index) => {
                 const card = `
                     <div class="account-card">
                         ${item.mainImage ? `<img src="${item.mainImage}" class="card-img">` : ''}
                         <div class="card-body">
                             <div class="price-display">₦${Number(item.price).toLocaleString()}</div>
-                            <div style="font-size: 13px; margin-bottom: 10px;">${item.name}</div>
+                            <div style="font-size: 13px; font-weight: bold; margin-bottom: 5px;">${item.name}</div>
+                            
                             ${item.type === 'account' ? `<button class="btn btn-vault" onclick="openVault(${index})">VIEW VAULT</button>` : ''}
+                            
                             <button class="btn btn-buy" onclick="payWithOPay('${item.price}', '${item.name}')">BUY NOW</button>
+                            
+                            <div class="delivery-note">
+                                ${item.type === 'account' ? 'Instant delivery via WhatsApp after payment.' : 'Diamond Top-up takes 5-10 mins.'}
+                            </div>
                         </div>
                     </div>`;
                 if(item.type === 'account') accGrid.innerHTML += card;
@@ -119,7 +143,6 @@
             });
         }
 
-        // 2. VAULT PREVIEW LOGIC
         function openVault(index) {
             const item = myInventory[index];
             const container = document.getElementById('vault-images');
@@ -142,11 +165,12 @@
             document.getElementById('tab-topup').classList.toggle('active', target === 'topup');
         }
 
-        // 3. PAYMENT LOGIC (CRITICAL: Replace YOUR_ID)
+        // 💳 3. PAYMENT: Paste your Merchant ID below
         function payWithOPay(amt, ref) {
             const merchantId = 'YOUR_ID'; // <--- PUT YOUR REAL ID HERE
+            
             if (merchantId === 'YOUR_ID') {
-                alert("Payment system setup incomplete. Please add your Merchant ID.");
+                alert("Payment system is being verified. Please check back in a few minutes or contact support.");
                 return;
             }
             window.location.href = `https://web-payment.opaycheckout.com/pay-now?merchantId=${merchantId}&amount=${amt}&ref=${ref}`;
