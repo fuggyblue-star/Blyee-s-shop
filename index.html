@@ -1,389 +1,167 @@
-import React from "react";
-import { Layout } from "@/components/Layout";
-import {
-  useGetProducts,
-  useCreateProduct,
-  useDeleteProduct,
-  useMarkProductSold,
-  getGetProductsQueryKey,
-  getGetProductStatsQueryKey,
-} from "@workspace/api-client-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blyee's Shop | Premium Vaults</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
-const productSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  price: z.coerce.number().min(0, "Price must be positive"),
-  category: z.string().min(1, "Category is required"),
-  description: z.string().optional(),
-  imageUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-});
+    <style>
+        :root { --accent-gold: #ffc400; --neon-gold: #fff0a3; --sky-blue: #4db8ff; --bg-dark: #0a0a0a; --glass: rgba(15, 15, 15, 0.95); }
+        body { margin: 0; background-color: var(--bg-dark); font-family: 'Roboto', sans-serif; color: white; overflow-x: hidden; }
+        
+        .page-wrapper { background-image: url('https://i.postimg.cc/8PGQc6gS/IMG-0985.png'); background-size: cover; background-position: center top; background-attachment: fixed; min-height: 100vh; position: relative; }
+        .page-overlay { background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.9) 100%); position: absolute; inset: 0; z-index: 1; }
+        .content-layer { position: relative; z-index: 2; }
 
-type ProductFormValues = z.infer<typeof productSchema>;
+        header { background: rgba(0, 0, 0, 0.9); padding: 25px 0 0 0; border-bottom: 1px solid #222; text-align: center; position: sticky; top: 0; z-index: 100; }
+        
+        .auth-wrap { position: absolute; right: 15px; top: 15px; }
+        .user-circle { width: 40px; height: 40px; border-radius: 50%; background: #111; border: 1.5px solid var(--accent-gold); cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px var(--accent-gold); }
+        .user-circle img { width: 100%; height: 100%; border-radius: 50%; }
 
-const goldBorder = "1px solid #333";
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "10px 12px",
-  borderRadius: 10,
-  border: "1px solid #333",
-  background: "#111",
-  color: "white",
-  fontSize: 14,
-  fontFamily: "'Roboto', sans-serif",
-  boxSizing: "border-box",
-  outline: "none",
-};
+        .logo-group { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 20px; filter: drop-shadow(0 0 8px var(--accent-gold)); }
+        .logo-group svg { fill: var(--neon-gold); width: 38px; height: 38px; }
+        .logo-text { color: var(--neon-gold); font-size: 28px; font-weight: bold; text-transform: uppercase; font-style: italic; }
 
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: 11,
-  textTransform: "uppercase",
-  letterSpacing: "0.1em",
-  color: "#777",
-  marginBottom: 6,
-  fontWeight: "bold",
-};
+        .tabs { display: flex; justify-content: center; gap: 40px; }
+        .tab-item { padding: 15px 5px; color: #777; cursor: pointer; font-weight: bold; position: relative; }
+        .tab-item.active { color: var(--accent-gold); }
+        .tab-item.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: var(--accent-gold); box-shadow: 0 0 10px var(--accent-gold); }
 
-const cardStyle: React.CSSProperties = {
-  background: "rgba(15,15,15,0.95)",
-  border: goldBorder,
-  borderRadius: 20,
-  padding: 24,
-};
+        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
+        .account-card { background: var(--glass); border-radius: 24px; border: 1px solid #333; overflow: hidden; position: relative; }
+        .card-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+        .card-body { padding: 12px; text-align: center; }
+        .price-display { background: #111; border: 1px solid var(--accent-gold); padding: 4px 10px; border-radius: 20px; color: var(--sky-blue); font-weight: bold; margin-bottom: 10px; display: inline-block; font-size: 14px; }
+        
+        .btn { width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 8px; border: none; font-size: 13px; }
+        .btn-vault { background: transparent; color: #888; border: 1px solid #333; }
+        .btn-buy { background: linear-gradient(135deg, var(--accent-gold) 0%, #ff8c00 100%); color: black; }
 
-export default function Admin() {  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('password') !== "Blanco99$") {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-black text-yellow-500">
-        <h1 className="text-2xl font-bold">⚠️ Access Denied: Secure Key Required</h1>
-      </div>
-    );
-  }
-
-  const { data: products, isLoading } = useGetProducts();
-  const createProduct = useCreateProduct();
-  const deleteProduct = useDeleteProduct();
-  const markSold = useMarkProductSold();
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
-    defaultValues: { name: "", price: 0, category: "", description: "", imageUrl: "" },
-  });
-
-  const onSubmit = (data: ProductFormValues) => {
-    createProduct.mutate(
-      { data: { ...data, imageUrl: data.imageUrl || undefined, description: data.description || undefined } },
-      {
-        onSuccess: () => {
-          toast({ title: "Listing Added", description: "Product added to the shop." });
-          reset();
-          queryClient.invalidateQueries({ queryKey: getGetProductsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetProductStatsQueryKey() });
-        },
-        onError: () => {
-          toast({ title: "Error", description: "Failed to add product.", variant: "destructive" });
-        },
-      }
-    );
-  };
-
-  const handleDelete = (id: string) => {
-    deleteProduct.mutate(
-      { id },
-      {
-        onSuccess: () => {
-          toast({ title: "Deleted", description: "Product removed." });
-          queryClient.invalidateQueries({ queryKey: getGetProductsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetProductStatsQueryKey() });
-        },
-      }
-    );
-  };
-
-  const handleMarkSold = (id: string) => {
-    markSold.mutate(
-      { id },
-      {
-        onSuccess: () => {
-          toast({ title: "Marked Sold", description: "Product status updated." });
-          queryClient.invalidateQueries({ queryKey: getGetProductsQueryKey() });
-          queryClient.invalidateQueries({ queryKey: getGetProductStatsQueryKey() });
-        },
-      }
-    );
-  };
-
-  return (
-    <Layout>
-      <div className="page-wrapper">
-        <div className="page-overlay" />
-        <div className="content-layer" style={{ paddingBottom: 60 }}>
-          <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 16px 0" }}>
-            <div style={{ marginBottom: 28 }}>
-              <h1
-                style={{
-                  fontSize: 26,
-                  fontWeight: "bold",
-                  textTransform: "uppercase",
-                  color: "#fff0a3",
-                  letterSpacing: "0.05em",
-                  marginBottom: 6,
-                  filter: "drop-shadow(0 0 8px #ffc400)",
-                }}
-              >
-                Admin Panel
-              </h1>
-              <p style={{ color: "#666", fontSize: 13 }}>Manage your shop inventory.</p>
-            </div>
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr",
-                gap: 24,
-              }}
-            >
-              <div style={cardStyle}>
-                <h2
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    color: "#ffc400",
-                    letterSpacing: "0.08em",
-                    marginBottom: 20,
-                    paddingBottom: 12,
-                    borderBottom: "1px solid #222",
-                  }}
-                >
-                  Add New Listing
-                </h2>
-
-                <form onSubmit={handleSubmit(onSubmit)}>
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={labelStyle}>Product Name</label>
-                    <input
-                      {...register("name")}
-                      placeholder="e.g. Silver III Valorant Account"
-                      style={inputStyle}
-                      data-testid="input-name"
-                    />
-                    {errors.name && <span style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4, display: "block" }}>{errors.name.message}</span>}
-                  </div>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                    <div>
-                      <label style={labelStyle}>Price (USD)</label>
-                      <input
-                        {...register("price")}
-                        type="number"
-                        step="0.01"
-                        style={inputStyle}
-                        data-testid="input-price"
-                      />
-                      {errors.price && <span style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4, display: "block" }}>{errors.price.message}</span>}
-                    </div>
-                    <div>
-                      <label style={labelStyle}>Category</label>
-                      <input
-                        {...register("category")}
-                        placeholder="Valorant"
-                        style={inputStyle}
-                        data-testid="input-category"
-                      />
-                      {errors.category && <span style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4, display: "block" }}>{errors.category.message}</span>}
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: 16 }}>
-                    <label style={labelStyle}>Image URL</label>
-                    <input
-                      {...register("imageUrl")}
-                      placeholder="https://..."
-                      style={inputStyle}
-                      data-testid="input-image"
-                    />
-                    {errors.imageUrl && <span style={{ color: "#ff6b6b", fontSize: 12, marginTop: 4, display: "block" }}>{errors.imageUrl.message}</span>}
-                  </div>
-
-                  <div style={{ marginBottom: 20 }}>
-                    <label style={labelStyle}>Description</label>
-                    <textarea
-                      {...register("description")}
-                      placeholder="Account details..."
-                      rows={3}
-                      style={{ ...inputStyle, resize: "vertical" }}
-                      data-testid="input-desc"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="btn-buy"
-                    disabled={createProduct.isPending}
-                    data-testid="button-submit-product"
-                  >
-                    {createProduct.isPending ? "Adding..." : "Add Listing"}
-                  </button>
-                </form>
-              </div>
-
-              <div style={cardStyle}>
-                <h2
-                  style={{
-                    fontSize: 16,
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    color: "#ffc400",
-                    letterSpacing: "0.08em",
-                    marginBottom: 20,
-                    paddingBottom: 12,
-                    borderBottom: "1px solid #222",
-                  }}
-                >
-                  Inventory
-                </h2>
-
-                {isLoading ? (
-                  <div style={{ color: "#555", textAlign: "center", padding: 40 }}>Loading...</div>
-                ) : !products || products.length === 0 ? (
-                  <div style={{ color: "#555", textAlign: "center", padding: 40, fontSize: 14 }}>
-                    No products yet. Add one above.
-                  </div>
-                ) : (
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-                      <thead>
-                        <tr style={{ borderBottom: "1px solid #222" }}>
-                          {["Status", "Name", "Category", "Price", "Actions"].map((h) => (
-                            <th
-                              key={h}
-                              style={{
-                                padding: "8px 10px",
-                                textAlign: h === "Price" || h === "Actions" ? "right" : "left",
-                                color: "#666",
-                                fontSize: 11,
-                                textTransform: "uppercase",
-                                letterSpacing: "0.08em",
-                                fontWeight: "bold",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {products.map((product) => (
-                          <tr
-                            key={product.id}
-                            style={{ borderBottom: "1px solid #1a1a1a" }}
-                            data-testid={`row-product-${product.id}`}
-                          >
-                            <td style={{ padding: "10px 10px" }}>
-                              <span
-                                style={{
-                                  display: "inline-block",
-                                  padding: "2px 8px",
-                                  borderRadius: 20,
-                                  fontSize: 10,
-                                  fontWeight: "bold",
-                                  textTransform: "uppercase",
-                                  letterSpacing: "0.06em",
-                                  background: product.isSold ? "rgba(255,107,107,0.15)" : "rgba(77,184,255,0.15)",
-                                  color: product.isSold ? "#ff6b6b" : "#4db8ff",
-                                  border: product.isSold ? "1px solid rgba(255,107,107,0.3)" : "1px solid rgba(77,184,255,0.3)",
-                                }}
-                              >
-                                {product.isSold ? "Sold" : "Active"}
-                              </span>
-                            </td>
-                            <td
-                              style={{
-                                padding: "10px 10px",
-                                maxWidth: 180,
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                                color: "#ddd",
-                              }}
-                              title={product.name}
-                            >
-                              {product.name}
-                            </td>
-                            <td style={{ padding: "10px 10px", color: "#777" }}>{product.category}</td>
-                            <td style={{ padding: "10px 10px", textAlign: "right", color: "#fff0a3", fontWeight: "bold" }}>
-                              ${product.price.toFixed(2)}
-                            </td>
-                            <td style={{ padding: "10px 10px", textAlign: "right" }}>
-                              <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
-                                {!product.isSold && (
-                                  <button
-                                    onClick={() => handleMarkSold(product.id)}
-                                    disabled={markSold.isPending}
-                                    data-testid={`button-mark-sold-${product.id}`}
-                                    style={{
-                                      padding: "5px 10px",
-                                      borderRadius: 8,
-                                      border: "1px solid rgba(77,184,255,0.4)",
-                                      background: "rgba(77,184,255,0.1)",
-                                      color: "#4db8ff",
-                                      fontSize: 11,
-                                      cursor: "pointer",
-                                      fontWeight: "bold",
-                                      textTransform: "uppercase",
-                                      letterSpacing: "0.04em",
-                                    }}
-                                    title="Mark Sold"
-                                  >
-                                    ✓ Sold
-                                  </button>
-                                )}
-                                <button
-                                  onClick={() => handleDelete(product.id)}
-                                  disabled={deleteProduct.isPending}
-                                  data-testid={`button-delete-${product.id}`}
-                                  style={{
-                                    padding: "5px 10px",
-                                    borderRadius: 8,
-                                    border: "1px solid rgba(255,107,107,0.4)",
-                                    background: "rgba(255,107,107,0.1)",
-                                    color: "#ff6b6b",
-                                    fontSize: 11,
-                                    cursor: "pointer",
-                                    fontWeight: "bold",
-                                    textTransform: "uppercase",
-                                    letterSpacing: "0.04em",
-                                  }}
-                                  title="Delete"
-                                >
-                                  ✕ Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 200; overflow-y: auto; padding: 20px; }
+        .modal-content { max-width: 500px; margin: auto; }
+        .vault-gallery img { width: 100%; border-radius: 15px; margin-bottom: 15px; border: 1px solid #333; }
+        
+        .section-hide { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <div class="page-overlay"></div>
+        <div class="content-layer">
+            <header>
+                <div class="auth-wrap">
+                    <button class="user-circle" id="login-btn" data-netlify-identity-button>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#ffc400"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08s5.97 1.09 6 3.08c-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                    </button>
+                </div>
+                <div class="logo-group">
+                    <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
+                    <div class="logo-text">Blyee's Shop</div>
+                </div>
+                <div class="tabs">
+                    <div id="tab-accounts" class="tab-item active" onclick="switchTab('accounts')">Accounts</div>
+                    <div id="tab-topup" class="tab-item" onclick="switchTab('topup')">Top-up</div>
+                </div>
+            </header>
+            <main id="accounts-section" class="product-grid"></main>
+            <main id="topup-section" class="product-grid section-hide"></main>
         </div>
-      </div>
-    </Layout>
-  );
-}
+    </div>
+
+    <div id="vault-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="vault-title" style="color: var(--neon-gold); text-align: center;">Vault Preview</h2>
+            <div id="vault-images" class="vault-gallery"></div>
+            <button class="btn btn-buy" onclick="closeVault()">CLOSE PREVIEW</button>
+        </div>
+    </div>
+
+    <script>
+        // 1. INVENTORY LIST
+        const myInventory = [
+            {
+                type: 'account',
+                name: "Level 72 Master Sakura",
+                price: "45000",
+                mainImage: "https://i.postimg.cc/8PGQc6gS/IMG-0985.png",
+                vaultImages: ["https://i.postimg.cc/8PGQc6gS/IMG-0985.png", "https://i.postimg.cc/8PGQc6gS/IMG-0985.png"]
+            },
+            {
+                type: 'topup',
+                name: "100 Diamonds",
+                price: "1200",
+                mainImage: "https://i.postimg.cc/8PGQc6gS/IMG-0985.png", 
+                vaultImages: []
+            }
+        ];
+
+        function renderShop() {
+            const accGrid = document.getElementById('accounts-section');
+            const topupGrid = document.getElementById('topup-section');
+            accGrid.innerHTML = '';
+            topupGrid.innerHTML = '';
+            myInventory.forEach((item, index) => {
+                const card = `
+                    <div class="account-card">
+                        ${item.mainImage ? `<img src="${item.mainImage}" class="card-img">` : ''}
+                        <div class="card-body">
+                            <div class="price-display">₦${Number(item.price).toLocaleString()}</div>
+                            <div style="font-size: 13px; margin-bottom: 10px;">${item.name}</div>
+                            ${item.type === 'account' ? `<button class="btn btn-vault" onclick="openVault(${index})">VIEW VAULT</button>` : ''}
+                            <button class="btn btn-buy" onclick="payWithOPay('${item.price}', '${item.name}')">BUY NOW</button>
+                        </div>
+                    </div>`;
+                if(item.type === 'account') accGrid.innerHTML += card;
+                else topupGrid.innerHTML += card;
+            });
+        }
+
+        // 2. VAULT PREVIEW LOGIC
+        function openVault(index) {
+            const item = myInventory[index];
+            const container = document.getElementById('vault-images');
+            container.innerHTML = '';
+            document.getElementById('vault-title').innerText = item.name;
+            item.vaultImages.forEach(src => {
+                const img = document.createElement('img'); img.src = src;
+                container.appendChild(img);
+            });
+            document.getElementById('vault-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVault() { document.getElementById('vault-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
+        
+        function switchTab(target) {
+            document.getElementById('accounts-section').classList.toggle('section-hide', target !== 'accounts');
+            document.getElementById('topup-section').classList.toggle('section-hide', target !== 'topup');
+            document.getElementById('tab-accounts').classList.toggle('active', target === 'accounts');
+            document.getElementById('tab-topup').classList.toggle('active', target === 'topup');
+        }
+
+        // 3. PAYMENT LOGIC (CRITICAL: Replace YOUR_ID)
+        function payWithOPay(amt, ref) {
+            const merchantId = 'YOUR_ID'; // <--- PUT YOUR REAL ID HERE
+            if (merchantId === 'YOUR_ID') {
+                alert("Payment system setup incomplete. Please add your Merchant ID.");
+                return;
+            }
+            window.location.href = `https://web-payment.opaycheckout.com/pay-now?merchantId=${merchantId}&amount=${amt}&ref=${ref}`;
+        }
+
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on("login", user => {
+                if (user.user_metadata.avatar_url) {
+                    document.getElementById('login-btn').innerHTML = `<img src="${user.user_metadata.avatar_url}">`;
+                }
+                window.netlifyIdentity.close();
+            });
+        }
+
+        renderShop();
+    </script>
+</body>
+</html>
